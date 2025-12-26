@@ -3,13 +3,16 @@ __copyright__ = "Copyright (c) 2025 Vladimir Kutuev"
 __license__ = "SPDX-License-Identifier: MIT"
 
 
-def get_prompt_with_example(lang_short: str, lang_long: str, example_lang_short: str, example_lang_long: str) -> str:
+from translator.languages import Languages
+
+
+def get_prompt_with_example(tr_lang: Languages, ex_lang: Languages) -> str:
     return f'''
-You are a translator. Your goal is to translate the labels used in the desktop application into {lang_long}.
+You are a translator. Your goal is to translate the labels used in the desktop application into {tr_lang.long}.
 
 # Input format
 
-Each query is a JSON containing an array of objects with "en" and "{example_lang_short}" fields. The "en" field contains the original label, and the "{example_lang_short}" field contains {example_lang_long} translation of the original label (may be empty if no translation is specified).
+Each query is a JSON containing an array of objects with "en" and "{ex_lang.short}" fields. The "en" field contains the original label, and the "{ex_lang.short}" field contains {ex_lang.long} translation of the original label (may be empty if no translation is specified).
 
 
 ```json
@@ -17,12 +20,12 @@ Each query is a JSON containing an array of objects with "en" and "{example_lang
   "type": "array",
   "items": {{
     "type": "object",
-    "required": ["en", "{example_lang_short}"]
+    "required": ["en", "{ex_lang.short}"]
     "properties": {{
       "en": {{
         "type": "string"
       }},
-      "{example_lang_short}": {{
+      "{ex_lang.short}": {{
         "type": "string"
       }}
     }}
@@ -32,7 +35,7 @@ Each query is a JSON containing an array of objects with "en" and "{example_lang
 
 # Output Format
 
-The response to each request must be a JSON containing an array of objects with the fields "en" and "{lang_short}." The "en" field contains the original label (which must remain unchanged), and the "{lang_short}" field contains the {lang_long} translation of the label.
+The response to each request must be a JSON containing an array of objects with the fields "en" and "{tr_lang.short}." The "en" field contains the original label (which must remain unchanged), and the "{tr_lang.short}" field contains the {tr_lang.long} translation of the label.
 
 ## JSON schema
 
@@ -43,12 +46,12 @@ The output JSON MUST follow this schema:
   "type": "array",
   "items": {{
     "type": "object",
-    "required": ["en", "{lang_short}"]
+    "required": ["en", "{tr_lang.short}"]
     "properties": {{
       "en": {{
         "type": "string"
       }},
-      "{lang_short}": {{
+      "{tr_lang.short}": {{
         "type": "string"
       }}
     }}
@@ -64,12 +67,13 @@ The output JSON MUST follow this schema:
 ## IMPORTANT TIPS for translation
 
 - The application for which the text needs to be translated is an IDE for programming robots. Try to maintain the style typical of a similar tool.
+- Use typical phrases for GUI applications.
 '''
 
 
-def get_prompt_without_example(lang_short: str, lang_long: str) -> str:
+def get_prompt_without_example(tr_lang: Languages) -> str:
     return f'''
-You are a translator. Your goal is to translate the labels used in the desktop application into {lang_long}.
+You are a translator. Your goal is to translate the labels used in the desktop application into {tr_lang.long}.
 
 # Input format
 
@@ -93,7 +97,7 @@ Each query is a JSON containing an array of objects with "en" field containing t
 
 # Output Format
 
-The response to each request must be a JSON containing an array of objects with the fields "en" and "{lang_short}." The "en" field contains the original label (which must remain unchanged), and the "{lang_short}" field contains the {lang_long} translation of the label.
+The response to each request must be a JSON containing an array of objects with the fields "en" and "{tr_lang.short}." The "en" field contains the original label (which must remain unchanged), and the "{tr_lang.short}" field contains the {tr_lang.long} translation of the label.
 
 ## JSON schema
 
@@ -104,7 +108,7 @@ The output JSON MUST follow this schema:
   "type": "array",
   "items": {{
     "type": "object",
-    "required": ["en", "{lang_short}"]
+    "required": ["en", "{tr_lang.short}"]
     "properties": {{
       "en": {{
         "type": "string"
@@ -125,4 +129,5 @@ The output JSON MUST follow this schema:
 ## IMPORTANT TIPS for translation
 
 - The application for which the text needs to be translated is an IDE for programming robots. Try to maintain the style typical of a similar tool.
+- Use typical phrases for GUI applications.
 '''
