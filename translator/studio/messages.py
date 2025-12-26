@@ -68,7 +68,7 @@ class TrikStudioMessageManager(MessagesManager):
                 if translation is None:
                     raise SyntaxError("<message> tag doesn't contain <translation> tag")
                 trtype, _ = TrikStudioMessageManager.__parse_translation(translation)
-                if trtype == MessageType.UNFINISHED:
+                if trtype == MessageType.UNFINISHED and translations[original]:
                     translation.attrib.pop("type")
                     translation.text = translations[original]
         self.__tree.write(self.__file, encoding="utf-8", xml_declaration=True)
