@@ -12,15 +12,25 @@ __all__ = [
 
 class Languages(Enum):
     """Enumeration of supported languages."""
-    RU = ("ru", "Russian")
-    FR = ("fr", "French")
-    ES = ("es", "Spanish")
-    VI = ("vi", "Vietnamese")
+    RU = "ru"
+    FR = "fr"
+    ES = "es"
+    VI = "vi"
 
-    def __init__(self, short: str, long: str) -> None:
+    def __init__(self, short: str) -> None:
         self.short = short
-        self.long = long
+        match short:
+            case "ru": self.long = "Russian"
+            case "fr": self.long = "French"
+            case "es": self.long = "Spanish"
+            case "vi": self.long = "Vietnamese"
+            case _: raise ValueError(f"Unknown language: '{short}'")
 
     def __str__(self) -> str:
         """Return the value for use in argparse help messages."""
         return self.short
+
+    @classmethod
+    def from_locale_code(cls, locale_code: str) -> "Languages":
+        language_code = locale_code.split('_')[0].split('-')[0]
+        return cls(language_code)
