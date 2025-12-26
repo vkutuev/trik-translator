@@ -3,7 +3,7 @@ __copyright__ = "Copyright (c) 2025 Vladimir Kutuev"
 __license__ = "SPDX-License-Identifier: MIT"
 
 from pathlib import Path
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 
 from translator.languages import Languages
 from translator.messages import Message, MessageType, MessagesManager
