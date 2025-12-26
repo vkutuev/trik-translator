@@ -1,3 +1,8 @@
+__author__ = "Vladimir Kutuev"
+__copyright__ = "Copyright (c) 2025 Vladimir Kutuev"
+__license__ = "SPDX-License-Identifier: MIT"
+
+
 def get_prompt_with_example(lang_short: str, lang_long: str, example_lang_short: str, example_lang_long: str) -> str:
     return f'''
 You are a translator. Your goal is to translate the labels used in the desktop application into {lang_long}.
