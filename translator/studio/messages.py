@@ -12,6 +12,7 @@ from translator.messages import Message, MessageType, MessagesManager
 class TrikStudioMessageManager(MessagesManager):
 
     def __init__(self, file: Path) -> None:
+        self.__file = file
         try:
             self.__tree: ET.ElementTree[ET.Element[str]] = ET.parse(file)
             self.__lang: Languages = TrikStudioMessageManager.__detect_lang(self.__tree.getroot())
@@ -53,4 +54,21 @@ class TrikStudioMessageManager(MessagesManager):
         return file_messages
 
     def write_messages(self, messages: list[Message]) -> None:
-        pass
+        translations: dict[str, str] = {m.message: m.translations.get(self.__lang, "") for m in messages}
+        root = self.__tree.getroot()
+        for context in root.findall("context"):
+            for message in context.findall("message"):
+                source = message.find("source")
+                if source is None:
+                    raise SyntaxError("<message> tag doesn't contain <source> tag")
+                original = source.text
+                if not original:
+                    raise SyntaxError("<message> contains no text ()")
+                translation = message.find("translation")
+                if translation is None:
+                    raise SyntaxError("<message> tag doesn't contain <translation> tag")
+                trtype, _ = TrikStudioMessageManager.__parse_translation(translation)
+                if trtype == MessageType.UNFINISHED:
+                    translation.attrib.pop("type")
+                    translation.text = translations[original]
+        self.__tree.write(self.__file, encoding="utf-8", xml_declaration=True)
