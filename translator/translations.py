@@ -19,7 +19,11 @@ class TranslationsManager(ABC):
         pass
 
     @abstractmethod
-    def get_translations(self, example_lang: Languages | None = None) -> list[Path] | list[tuple[Path, Path]]:
+    def translations_without_ex(self) -> list[Path]:
+        pass
+
+    @abstractmethod
+    def translations_with_ex(self, ex_lang: Languages) -> list[tuple[Path, Path]]:
         pass
 
     @abstractmethod

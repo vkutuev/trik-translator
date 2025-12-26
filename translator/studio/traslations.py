@@ -49,27 +49,26 @@ class TrikStudioTranslationsManager(TranslationsManager):
                 files.append(d_root.joinpath(f).relative_to(dir_path))
         return filter(lambda p: p.name.endswith(f"_{tr_lang}.ts"), files)
 
-    def __translations_without_ex(self, lang: str) -> list[Path]:
-        tr_dir = self.__qrtranslations / lang
-        return list(TrikStudioTranslationsManager.__get_file_list(tr_dir, lang))
+    def translations_without_ex(self) -> list[Path]:
+        if self.__lang is None:
+            raise RuntimeError("prepare() method must be called before get_translations()")
+        tr_lang = self.__lang
+        tr_dir = self.__qrtranslations / tr_lang.short
+        files = TrikStudioTranslationsManager.__get_file_list(tr_dir, tr_lang.short)
+        return list(map(lambda f: tr_dir / f, files))
 
-    def __translations_with_ex(self, tr_lang: str, ex_lang: str) -> list[tuple[Path, Path]]:
-        tr_dir = self.__qrtranslations / tr_lang
-        ex_dir = self.__qrtranslations / ex_lang
+    def translations_with_ex(self, ex_lang: Languages) -> list[tuple[Path, Path]]:
+        if self.__lang is None:
+            raise RuntimeError("prepare() method must be called before get_translations()")
+        tr_lang = self.__lang
+        tr_dir = self.__qrtranslations / tr_lang.short
+        ex_dir = self.__qrtranslations / ex_lang.short
         files = map(
-            lambda p: str(p).removesuffix(f"_{tr_lang}.ts"),
-            TrikStudioTranslationsManager.__get_file_list(tr_dir, tr_lang)
+            lambda p: str(p).removesuffix(f"_{tr_lang.short}.ts"),
+            TrikStudioTranslationsManager.__get_file_list(tr_dir, tr_lang.short)
         )
         files = list(map(lambda f: (tr_dir / (f + f"_{tr_lang}.ts"), ex_dir / (f + f"_{ex_lang}.ts")), files))
         return files
-
-    def get_translations(self, example_lang: Languages | None = None) -> list[Path] | list[tuple[Path, Path]]:
-        if self.__lang is None:
-            raise RuntimeError("prepare() method must be called before get_translations()")
-        if example_lang is None:
-            return self.__translations_without_ex(self.__lang.short)
-        else:
-            return self.__translations_with_ex(self.__lang.short, example_lang.short)
 
     def finalize(self) -> None:
         # Hack to reduce diff (escape &apos; and &quot;)
