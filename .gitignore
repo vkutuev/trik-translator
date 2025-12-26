@@ -1,6 +1,8 @@
 # autolupdate dir
 trik-studio-lupdate/
 
+.env
+
 # Python-generated files
 __pycache__/
 *.py[oc]
