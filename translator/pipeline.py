@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from translator.languages import Languages
+from translator.llm import Translator
 from translator.messages import Message, MessagesManager, MessageType
 from translator.translations import TranslationsManager
 
@@ -33,24 +34,25 @@ class TranslatorPipeline:
         self,
         tr_factory: TranslatorFactory,
         tr_path: Path,
+        translator: Translator,
     ) -> None:
         self.__tr_factory = tr_factory
         self.__tr_manager = tr_factory.build_tm(tr_path)
+        self.__traslator = translator
 
-    def __process_without_ex(self, tr_files: list[Path]) -> None:
+    def __process_without_ex(self, tr_lang: Languages, tr_files: list[Path]) -> None:
         for file in tr_files:
             ms_manager = self.__tr_factory.build_mm(file)
             messages = ms_manager.read_messages()
             messages = [m.to_dict() for m in messages]
             json_ms = json.dumps(messages, ensure_ascii=False)
-            print(type(json_ms))
             # Pass to translator
-            json_ms_tr = json_ms
-
-            messages_tr = [Message.from_dict(tr) for tr in json.loads(json_ms)]
+            json_ms_tr = self.__traslator.translate(json_ms, tr_lang)
+            # Process translated messages
+            messages_tr = [Message.from_dict(tr) for tr in json.loads(json_ms_tr)]
             ms_manager.write_messages(messages_tr)
 
-    def __process_with_ex(self, ex_lang: Languages, tr_ex_files: list[tuple[Path, Path]]) -> None:
+    def __process_with_ex(self, tr_lang: Languages, ex_lang: Languages, tr_ex_files: list[tuple[Path, Path]]) -> None:
         for tr_file, ex_file in tr_ex_files:
             print(tr_file, ex_file)
             tr_mm = self.__tr_factory.build_mm(tr_file)
@@ -67,17 +69,17 @@ class TranslatorPipeline:
             json_ms = json.dumps(messages, ensure_ascii=False)
             print(json_ms)
             # Pass to translator
-            json_ms_tr = json_ms
-
-            messages_tr = [Message.from_dict(tr) for tr in json.loads(json_ms)]
+            json_ms_tr = self.__traslator.translate(json_ms, tr_lang, ex_lang)
+            # Process translated messages
+            messages_tr = [Message.from_dict(tr) for tr in json.loads(json_ms_tr)]
             tr_mm.write_messages(messages_tr)
 
     def run(self, tr_lang: Languages, ex_lang: Languages | None) -> None:
         self.__tr_manager.prepare(tr_lang)
         if ex_lang is None:
             tr_files = self.__tr_manager.translations_without_ex()
-            self.__process_without_ex(tr_files)
+            self.__process_without_ex(tr_lang, tr_files)
         else:
             tr_ex_files = self.__tr_manager.translations_with_ex(ex_lang)
-            self.__process_with_ex(ex_lang, tr_ex_files)
+            self.__process_with_ex(tr_lang, ex_lang, tr_ex_files)
         self.__tr_manager.finalize()
