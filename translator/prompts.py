@@ -15,7 +15,6 @@ You are a translator. Your goal is to translate the labels used in the desktop a
 Each query is a JSON containing an array of objects with "en" and "{ex_lang.short}" fields. The "en" field contains the original label, and the "{ex_lang.short}" field contains {ex_lang.long} translation of the original label (may be empty if no translation is specified).
 
 
-```json
 {{
   "type": "array",
   "items": {{
@@ -31,17 +30,15 @@ Each query is a JSON containing an array of objects with "en" and "{ex_lang.shor
     }}
   }}
 }}
-```
 
 # Output Format
 
-The response to each request must be a JSON containing an array of objects with the fields "en" and "{tr_lang.short}." The "en" field contains the original label (which must remain unchanged), and the "{tr_lang.short}" field contains the {tr_lang.long} translation of the label.
+The response to each request MUST be a raw JSON (with no markdown or special formatting characters) containing an array of objects with the fields "en" and "{tr_lang.short}." The "en" field contains the original label (which must remain unchanged), and the "{tr_lang.short}" field contains the {tr_lang.long} translation of the label.
 
 ## JSON schema
 
 The output JSON MUST follow this schema:
 
-```json
 {{
   "type": "array",
   "items": {{
@@ -57,7 +54,6 @@ The output JSON MUST follow this schema:
     }}
   }}
 }}
-```
 
 ## CRITICAL requirements:
 
@@ -80,7 +76,6 @@ You are a translator. Your goal is to translate the labels used in the desktop a
 Each query is a JSON containing an array of objects with "en" field containing the original label.
 
 
-```json
 {{
   "type": "array",
   "items": {{
@@ -93,17 +88,15 @@ Each query is a JSON containing an array of objects with "en" field containing t
     }}
   }}
 }}
-```
 
 # Output Format
 
-The response to each request must be a JSON containing an array of objects with the fields "en" and "{tr_lang.short}." The "en" field contains the original label (which must remain unchanged), and the "{tr_lang.short}" field contains the {tr_lang.long} translation of the label.
+The response to each request MUST be a raw JSON (with no markdown or special formatting characters) containing an array of objects with the fields "en" and "{tr_lang.short}." The "en" field contains the original label (which must remain unchanged), and the "{tr_lang.short}" field contains the {tr_lang.long} translation of the label.
 
 ## JSON schema
 
 The output JSON MUST follow this schema:
 
-```json
 {{
   "type": "array",
   "items": {{
@@ -119,7 +112,6 @@ The output JSON MUST follow this schema:
     }}
   }}
 }}
-```
 
 ## CRITICAL requirements:
 
