@@ -5,6 +5,8 @@ __license__ = "SPDX-License-Identifier: MIT"
 from abc import ABC, abstractmethod
 import os
 
+from openai.types.responses import response_format_text_json_schema_config
+
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -40,7 +42,7 @@ class LlmTranslator(Translator):
         self.__without_example_prompts: dict[Languages, str] = {}
         self.__with_example_prompts: dict[tuple[Languages, Languages], str] = {}
 
-    def translate(self, query: str, tr_lang: Languages, ex_lang: Languages | None) -> str:
+    def translate(self, query: str, tr_lang: Languages, ex_lang: Languages | None = None) -> str:
         if ex_lang is None:
             if tr_lang in self.__without_example_prompts:
                 prompt = self.__without_example_prompts[tr_lang]
@@ -57,7 +59,7 @@ class LlmTranslator(Translator):
         response = self.__client.responses.create(
             model=self.__model,
             temperature=self.__temperature,
-            max_output_tokens=2500,
+            max_output_tokens=4000,
             instructions=prompt,
             input=query,
         )
