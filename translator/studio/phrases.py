@@ -3,24 +3,27 @@ __copyright__ = "Copyright (c) 2025 Vladimir Kutuev"
 __license__ = "SPDX-License-Identifier: MIT"
 
 from pathlib import Path
-from lxml import etree as ET
+from typing import Iterable
+
+from lxml import etree
 
 from translator.languages import Languages
-from translator.phrases import Phrase, PraseTranslationStatus, PhrasesManager
+from translator.phrases import Phrase, PhraseTranslationStatus, PhrasesManager
 
 
 class TrikStudioMessageManager(PhrasesManager):
 
-    def __init__(self, file: Path) -> None:
+    def __init__(self, file: Path, ptype: PhraseTranslationStatus = PhraseTranslationStatus.UNFINISHED) -> None:
         self.__file = file
         try:
-            self.__tree: ET.ElementTree[ET.Element[str]] = ET.parse(file)
+            self.__tree: etree.ElementTree[etree.Element[str]] = etree.parse(file)
             self.__lang: Languages = TrikStudioMessageManager.__detect_lang(self.__tree.getroot())
-        except ET.ParseError as e:
-            raise ET.ParseError(f"File {file} cannot be parsed") from e
+            self.__ptype = ptype
+        except etree.ParseError as e:
+            raise etree.ParseError(f"File {file} cannot be parsed") from e
 
     @staticmethod
-    def __detect_lang(ts: ET.Element) -> Languages:
+    def __detect_lang(ts: etree.Element) -> Languages:
         if ts.tag != "TS":
             raise SyntaxError("Qt TS root tag must be <TS>")
         locale_code = ts.attrib.get("language", None)
@@ -29,12 +32,12 @@ class TrikStudioMessageManager(PhrasesManager):
         return Languages.from_locale_code(locale_code)
 
     @staticmethod
-    def __parse_translation(translation: ET.Element) -> tuple[PraseTranslationStatus, str]:
-        trtype = PraseTranslationStatus(translation.attrib.get("type", ""))
+    def __parse_translation(translation: etree.Element) -> tuple[PhraseTranslationStatus, str]:
+        trtype = PhraseTranslationStatus(translation.attrib.get("type", ""))
         translated = translation.text if translation.text else ""
         return trtype, translated
 
-    def read_messages(self, mtype: PraseTranslationStatus = PraseTranslationStatus.UNFINISHED) -> list[Phrase]:
+    def read_phrases(self) -> list[Phrase]:
         root = self.__tree.getroot()
         file_messages: list[Phrase] = []
         for context in root.findall("context"):
@@ -49,12 +52,14 @@ class TrikStudioMessageManager(PhrasesManager):
                 if translation is None:
                     raise SyntaxError("<message> tag doesn't contain <translation> tag")
                 trtype, translated = TrikStudioMessageManager.__parse_translation(translation)
-                if trtype == mtype:
+                if trtype == self.__ptype:
                     file_messages.append(Phrase(original, {self.__lang: translated}))
         return file_messages
 
-    def write_messages(self, messages: list[Phrase]) -> None:
-        translations: dict[str, str] = {m.original: m.translations.get(self.__lang, "") for m in messages}
+    def write_phrases(self, phrases: Iterable[Phrase]) -> Iterable[Phrase]:
+        written: set[str] = set()
+        translations: dict[str, str] = {p.original: p.translations.get(self.__lang, "") for p in phrases}
+        phrases: dict[str, Phrase] = {p.original: p for p in phrases}
         root = self.__tree.getroot()
         for context in root.findall("context"):
             for message in context.findall("message"):
@@ -68,8 +73,11 @@ class TrikStudioMessageManager(PhrasesManager):
                 if translation is None:
                     raise SyntaxError("<message> tag doesn't contain <translation> tag")
                 trtype, _ = TrikStudioMessageManager.__parse_translation(translation)
-                #if trtype == MessageType.UNFINISHED and translations.get(original, ""):
-                if trtype == PraseTranslationStatus.FINISHED and translations.get(original, ""):
-                    # translation.attrib.pop("type")
+                if trtype == self.__ptype and translations.get(original, ""):
+                    if not trtype.FINISHED:
+                        translation.attrib.pop("type")
                     translation.text = translations[original]
+                    written.add(original)
+
         self.__tree.write(self.__file, encoding="utf-8", xml_declaration=True)
+        return { phrases[pk] for pk in set(phrases.keys()).difference(written) }

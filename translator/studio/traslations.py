@@ -22,6 +22,7 @@ class TrikStudioTranslationsManager(TranslationsManager):
         self.__lang: Languages | None = None
 
     def __autolupdate(self) -> None:
+        print("Run qmake autolupdate")
         alupdate_dir = Path.cwd() / "trik-studio-lupdate"
         alupdate_dir.mkdir(exist_ok=True)
         log_file = alupdate_dir / "log.txt"

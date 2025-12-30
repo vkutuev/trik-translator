@@ -5,12 +5,13 @@ __license__ = "SPDX-License-Identifier: MIT"
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
+from typing import Iterable
 
 from translator.languages import Languages
 
 __all__ = [
     "Phrase",
-    "PraseTranslationStatus",
+    "PhraseTranslationStatus",
     "PhrasesManager",
 ]
 
@@ -40,7 +41,7 @@ class Phrase:
         return cls(original, translations)
 
 
-class PraseTranslationStatus(Enum):
+class PhraseTranslationStatus(Enum):
     FINISHED = ""
     UNFINISHED = "unfinished"
     VANISHED = "vanished"
@@ -50,9 +51,9 @@ class PraseTranslationStatus(Enum):
 class PhrasesManager(ABC):
 
     @abstractmethod
-    def read_phrases(self, ptype: PraseTranslationStatus = PraseTranslationStatus.UNFINISHED) -> list[Phrase]:
+    def read_phrases(self) -> Iterable[Phrase]:
         pass
 
     @abstractmethod
-    def write_phrases(self, phrases: list[Phrase]) -> None:
+    def write_phrases(self, phrases: Iterable[Phrase]) -> Iterable[Phrase]:
         pass

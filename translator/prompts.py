@@ -2,10 +2,12 @@ __author__ = "Vladimir Kutuev"
 __copyright__ = "Copyright (c) 2025 Vladimir Kutuev"
 __license__ = "SPDX-License-Identifier: MIT"
 
+from functools import cache
 
 from translator.languages import Languages
 
 
+@cache
 def get_prompt_with_example(tr_lang: Languages, ex_lang: Languages) -> str:
     return f'''
 You are a translator. Your goal is to translate the labels used in the desktop application into {tr_lang.long}.
@@ -67,6 +69,7 @@ The output JSON MUST follow this schema:
 '''
 
 
+@cache
 def get_prompt_without_example(tr_lang: Languages) -> str:
     return f'''
 You are a translator. Your goal is to translate the labels used in the desktop application into {tr_lang.long}.
