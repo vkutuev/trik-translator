@@ -8,7 +8,7 @@ from pathlib import Path
 
 from translator.languages import Languages
 from translator.llm import Translator
-from translator.messages import Message, MessagesManager, MessageType
+from translator.phrases import Phrase, PhrasesManager, PraseTranslationStatus
 from translator.translations import TranslationsManager
 
 __all__ = [
@@ -24,7 +24,7 @@ class TranslatorFactory(ABC):
         pass
 
     @abstractmethod
-    def build_mm(self, path: Path) -> MessagesManager:
+    def build_mm(self, path: Path) -> PhrasesManager:
         pass
 
 
@@ -45,7 +45,7 @@ class TranslatorPipeline:
             print(f"Generate translations for {file}")
             ms_manager = self.__tr_factory.build_mm(file)
             print(f"->Read messages from {file}")
-            messages = ms_manager.read_messages(MessageType.FINISHED)
+            messages = ms_manager.read_messages(PraseTranslationStatus.FINISHED)
             messages = [m.to_dict() for m in messages]
             if len(messages) == 0:
                 continue
@@ -61,7 +61,7 @@ class TranslatorPipeline:
                     print("Cannot parse JSON")
                     print(json_ms_tr)
                     raise
-                messages_tr = [Message.from_dict(tr) for tr in traslated if "en" in tr]
+                messages_tr = [Phrase.from_dict(tr) for tr in traslated if "en" in tr]
                 print(f"->Write messages to {file}")
                 ms_manager.write_messages(messages_tr)
             else:
@@ -76,7 +76,7 @@ class TranslatorPipeline:
                     print("Cannot parse JSON")
                     print(json_ms_tr)
                     raise
-                messages_tr = [Message.from_dict(tr) for tr in traslated if "en" in tr]
+                messages_tr = [Phrase.from_dict(tr) for tr in traslated if "en" in tr]
                 print(f"->Write messages to {file}")
                 ms_manager.write_messages(messages_tr)
                 ms_2 = messages[msgs_split:]
@@ -89,7 +89,7 @@ class TranslatorPipeline:
                     print("Cannot parse JSON")
                     print(json_ms_tr)
                     raise
-                messages_tr = [Message.from_dict(tr) for tr in traslated if "en" in tr]
+                messages_tr = [Phrase.from_dict(tr) for tr in traslated if "en" in tr]
                 print(f"->Write messages to {file}")
                 ms_manager.write_messages(messages_tr)
 
@@ -99,12 +99,12 @@ class TranslatorPipeline:
             tr_mm = self.__tr_factory.build_mm(tr_file)
             ex_mm = self.__tr_factory.build_mm(ex_file)
             print(f"->Read messages from {tr_file}")
-            tr_ms_dict = {message.message: message for message in tr_mm.read_messages()}
+            tr_ms_dict = {message.original: message for message in tr_mm.read_messages()}
             print(f"->Read messages from {ex_file}")
-            ex_ms = ex_mm.read_messages(MessageType.FINISHED)
+            ex_ms = ex_mm.read_messages(PraseTranslationStatus.FINISHED)
             print("->Merge messages")
             for message in ex_ms:
-                ms = tr_ms_dict.get(message.message, None)
+                ms = tr_ms_dict.get(message.original, None)
                 if ms:
                     ms.translations[ex_lang] = message.translations[ex_lang]
             messages = [m.to_dict([ex_lang]) for m in tr_ms_dict.values()]
@@ -123,7 +123,7 @@ class TranslatorPipeline:
                     print("Cannot parse JSON")
                     print(json_ms_tr)
                     raise
-                messages_tr = [Message.from_dict(tr) for tr in traslated]
+                messages_tr = [Phrase.from_dict(tr) for tr in traslated]
                 print(f"->Write messages to {tr_file}")
                 tr_mm.write_messages(messages_tr)
             else:
@@ -138,7 +138,7 @@ class TranslatorPipeline:
                     print("Cannot parse JSON")
                     print(json_ms_tr)
                     raise
-                messages_tr = [Message.from_dict(tr) for tr in traslated]
+                messages_tr = [Phrase.from_dict(tr) for tr in traslated]
                 print(f"--->Write messages to {tr_file}")
                 tr_mm.write_messages(messages_tr)
                 ms_2 = messages[msgs_split:]
@@ -151,7 +151,7 @@ class TranslatorPipeline:
                     print("Cannot parse JSON")
                     print(json_ms_tr)
                     raise
-                messages_tr = [Message.from_dict(tr) for tr in traslated]
+                messages_tr = [Phrase.from_dict(tr) for tr in traslated]
                 print(f"--->Write messages to {tr_file}")
                 tr_mm.write_messages(messages_tr)
 

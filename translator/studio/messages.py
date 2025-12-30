@@ -6,10 +6,10 @@ from pathlib import Path
 from lxml import etree as ET
 
 from translator.languages import Languages
-from translator.messages import Message, MessageType, MessagesManager
+from translator.phrases import Phrase, PraseTranslationStatus, PhrasesManager
 
 
-class TrikStudioMessageManager(MessagesManager):
+class TrikStudioMessageManager(PhrasesManager):
 
     def __init__(self, file: Path) -> None:
         self.__file = file
@@ -29,14 +29,14 @@ class TrikStudioMessageManager(MessagesManager):
         return Languages.from_locale_code(locale_code)
 
     @staticmethod
-    def __parse_translation(translation: ET.Element) -> tuple[MessageType, str]:
-        trtype = MessageType(translation.attrib.get("type", ""))
+    def __parse_translation(translation: ET.Element) -> tuple[PraseTranslationStatus, str]:
+        trtype = PraseTranslationStatus(translation.attrib.get("type", ""))
         translated = translation.text if translation.text else ""
         return trtype, translated
 
-    def read_messages(self, mtype: MessageType = MessageType.UNFINISHED) -> list[Message]:
+    def read_messages(self, mtype: PraseTranslationStatus = PraseTranslationStatus.UNFINISHED) -> list[Phrase]:
         root = self.__tree.getroot()
-        file_messages: list[Message] = []
+        file_messages: list[Phrase] = []
         for context in root.findall("context"):
             for message in context.findall("message"):
                 source = message.find("source")
@@ -50,11 +50,11 @@ class TrikStudioMessageManager(MessagesManager):
                     raise SyntaxError("<message> tag doesn't contain <translation> tag")
                 trtype, translated = TrikStudioMessageManager.__parse_translation(translation)
                 if trtype == mtype:
-                    file_messages.append(Message(original, {self.__lang: translated}))
+                    file_messages.append(Phrase(original, {self.__lang: translated}))
         return file_messages
 
-    def write_messages(self, messages: list[Message]) -> None:
-        translations: dict[str, str] = {m.message: m.translations.get(self.__lang, "") for m in messages}
+    def write_messages(self, messages: list[Phrase]) -> None:
+        translations: dict[str, str] = {m.original: m.translations.get(self.__lang, "") for m in messages}
         root = self.__tree.getroot()
         for context in root.findall("context"):
             for message in context.findall("message"):
@@ -69,7 +69,7 @@ class TrikStudioMessageManager(MessagesManager):
                     raise SyntaxError("<message> tag doesn't contain <translation> tag")
                 trtype, _ = TrikStudioMessageManager.__parse_translation(translation)
                 #if trtype == MessageType.UNFINISHED and translations.get(original, ""):
-                if trtype == MessageType.FINISHED and translations.get(original, ""):
+                if trtype == PraseTranslationStatus.FINISHED and translations.get(original, ""):
                     # translation.attrib.pop("type")
                     translation.text = translations[original]
         self.__tree.write(self.__file, encoding="utf-8", xml_declaration=True)
