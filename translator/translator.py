@@ -11,7 +11,7 @@ from openai import OpenAI
 
 from translator.languages import Languages
 from translator.phrases import Phrase
-from translator.prompts import get_prompt_without_example, get_prompt_with_example
+from translator.studio.prompts import get_prompt_without_example, get_prompt_with_example
 
 __all__ = [
     "Translator",
