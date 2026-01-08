@@ -9,3 +9,8 @@ dependencies = [
     "openai>=2.14.0",
     "python-dotenv>=1.2.1",
 ]
+
+[dependency-groups]
+dev = [
+    "types-lxml>=2026.1.1",
+]
