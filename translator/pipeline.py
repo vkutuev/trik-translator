@@ -3,7 +3,6 @@ __copyright__ = "Copyright (c) 2025 Vladimir Kutuev"
 __license__ = "SPDX-License-Identifier: MIT"
 
 from abc import ABC, abstractmethod
-import json
 from pathlib import Path
 
 from translator.languages import Languages
@@ -39,20 +38,27 @@ class TranslatorPipeline:
         self.__tr_factory = tr_factory
         self.__tr_manager = tr_factory.build_tm(tr_path)
         self.__translator = translator
+        self.__all_written = False
 
     def __process_without_ex(self, tr_lang: Languages, tr_files: list[Path]) -> None:
+        self.__all_written = True
         for file in tr_files:
             print(f"Generate translations for {file}")
-            ms_manager = self.__tr_factory.build_pm(file)
+            ph_manager = self.__tr_factory.build_pm(file)
             print(f"->Read phrases from {file}")
-            phrases = list(ms_manager.read_phrases())
+            phrases = list(ph_manager.read_phrases())
             if len(phrases) == 0:
                 continue
             print(f"->Pass to translator {len(phrases)} phrases")
             phrases_tr = self.__translator.translate(phrases, tr_lang)
-            ms_manager.write_phrases(phrases_tr)
+            cannot_write = list(ph_manager.write_phrases(phrases_tr))
+            if len(cannot_write) > 0:
+                self.__all_written = False
+                print("->Cannot write translations for phrases:")
+                print("\n---->".join({p.original for p in cannot_write}))
 
     def __process_with_ex(self, tr_lang: Languages, ex_lang: Languages, tr_ex_files: list[tuple[Path, Path]]) -> None:
+        self.__all_written = True
         for tr_file, ex_file in tr_ex_files:
             print(f"Generate translations for {tr_file}")
             tr_pm = self.__tr_factory.build_pm(tr_file)
@@ -72,9 +78,11 @@ class TranslatorPipeline:
                 continue
             print(f"->Pass to translator {len(phrases)} phrases")
             phrases_tr = self.__translator.translate(phrases, tr_lang)
-            cannot_write = tr_pm.write_phrases(phrases_tr)
-            print("->Cannot write translations for phrases:")
-            print("\n---->".join({p.original for p in cannot_write}))
+            cannot_write = list(tr_pm.write_phrases(phrases_tr))
+            if len(cannot_write) > 0:
+                self.__all_written = False
+                print("->Cannot write translations for phrases:")
+                print("\n---->".join({p.original for p in cannot_write}))
 
 
     def run(self, tr_lang: Languages, ex_lang: Languages | None = None) -> None:
@@ -88,3 +96,5 @@ class TranslatorPipeline:
                 self.__process_with_ex(tr_lang, ex_lang, tr_ex_files)
         finally:
             self.__tr_manager.finalize()
+            if self.__all_written:
+                print("->Cannot write some translations! Try to run program again!!!")
