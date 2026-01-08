@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from translator.languages import Languages
-from translator.llm import Translator
+from translator.translator import Translator
 from translator.phrases import Phrase, PhrasesManager, PhraseTranslationStatus
 from translator.translations import TranslationsManager
 
@@ -38,7 +38,7 @@ class TranslatorPipeline:
     ) -> None:
         self.__tr_factory = tr_factory
         self.__tr_manager = tr_factory.build_tm(tr_path)
-        self.__traslator = translator
+        self.__translator = translator
 
     def __process_without_ex(self, tr_lang: Languages, tr_files: list[Path]) -> None:
         for file in tr_files:
@@ -49,7 +49,7 @@ class TranslatorPipeline:
             if len(phrases) == 0:
                 continue
             print(f"->Pass to translator {len(phrases)} phrases")
-            phrases_tr = self.__traslator.translate(phrases, tr_lang)
+            phrases_tr = self.__translator.translate(phrases, tr_lang)
             ms_manager.write_phrases(phrases_tr)
 
     def __process_with_ex(self, tr_lang: Languages, ex_lang: Languages, tr_ex_files: list[tuple[Path, Path]]) -> None:
@@ -71,7 +71,7 @@ class TranslatorPipeline:
             if len(phrases) == 0:
                 continue
             print(f"->Pass to translator {len(phrases)} phrases")
-            phrases_tr = self.__traslator.translate(phrases, tr_lang)
+            phrases_tr = self.__translator.translate(phrases, tr_lang)
             cannot_write = tr_pm.write_phrases(phrases_tr)
             print("->Cannot write translations for phrases:")
             print("\n---->".join({p.original for p in cannot_write}))

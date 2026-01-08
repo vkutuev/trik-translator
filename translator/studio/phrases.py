@@ -11,13 +11,13 @@ from translator.languages import Languages
 from translator.phrases import Phrase, PhraseTranslationStatus, PhrasesManager
 
 
-class TrikStudioMessageManager(PhrasesManager):
+class TrikStudioPhrasesManager(PhrasesManager):
 
     def __init__(self, file: Path, ptype: PhraseTranslationStatus = PhraseTranslationStatus.UNFINISHED) -> None:
         self.__file = file
         try:
             self.__tree: etree.ElementTree[etree.Element[str]] = etree.parse(file)
-            self.__lang: Languages = TrikStudioMessageManager.__detect_lang(self.__tree.getroot())
+            self.__lang: Languages = TrikStudioPhrasesManager.__detect_lang(self.__tree.getroot())
             self.__ptype = ptype
         except etree.ParseError as e:
             raise etree.ParseError(f"File {file} cannot be parsed") from e
@@ -51,7 +51,7 @@ class TrikStudioMessageManager(PhrasesManager):
                 translation = message.find("translation")
                 if translation is None:
                     raise SyntaxError("<message> tag doesn't contain <translation> tag")
-                trtype, translated = TrikStudioMessageManager.__parse_translation(translation)
+                trtype, translated = TrikStudioPhrasesManager.__parse_translation(translation)
                 if trtype == self.__ptype:
                     file_messages.append(Phrase(original, {self.__lang: translated}))
         return file_messages
@@ -72,7 +72,7 @@ class TrikStudioMessageManager(PhrasesManager):
                 translation = message.find("translation")
                 if translation is None:
                     raise SyntaxError("<message> tag doesn't contain <translation> tag")
-                trtype, _ = TrikStudioMessageManager.__parse_translation(translation)
+                trtype, _ = TrikStudioPhrasesManager.__parse_translation(translation)
                 if trtype == self.__ptype and translations.get(original, ""):
                     if not trtype.FINISHED:
                         translation.attrib.pop("type")
@@ -80,4 +80,4 @@ class TrikStudioMessageManager(PhrasesManager):
                     written.add(original)
 
         self.__tree.write(self.__file, encoding="utf-8", xml_declaration=True)
-        return { phrases[pk] for pk in set(phrases.keys()).difference(written) }
+        return {phrases[pk] for pk in set(phrases.keys()).difference(written)}
