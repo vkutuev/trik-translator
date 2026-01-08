@@ -68,13 +68,13 @@ class LlmTranslator(Translator):
                     + self.translate(phrases[split_len:], tr_lang, ex_lang))
 
         json_phs_tr = self.__translate_json(json_phs, tr_lang, ex_lang)
-        traslated_dict = None
+        translated_dict = None
         try:
-            traslated_dict = json.loads(json_phs_tr)
+            translated_dict = json.loads(json_phs_tr)
         except Exception:
             # log warnin cannot parse LLM response JSON
             print("-->Cannot parse output JSON try again!!!")
             pass
-        if traslated_dict is None:
+        if translated_dict is None:
             return self.translate(phrases, tr_lang, ex_lang)
-        return [Phrase.from_dict(tr) for tr in traslated_dict if "en" in tr]
+        return [Phrase.from_dict(tr) for tr in translated_dict if "en" in tr]
