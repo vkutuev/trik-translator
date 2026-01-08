@@ -16,6 +16,9 @@ class Languages(Enum):
     FR = "fr"
     ES = "es"
     VI = "vi"
+    IT = "it"
+    PT = "pt"
+    DE = "de"
 
     def __init__(self, short: str) -> None:
         self.short = short
@@ -24,6 +27,9 @@ class Languages(Enum):
             case "fr": self.long = "French"
             case "es": self.long = "Spanish"
             case "vi": self.long = "Vietnamese"
+            case "it": self.long = "Italian"
+            case "pt": self.long = "Portuguese"
+            case "de": self.long = "German"
             case _: raise ValueError(f"Unknown language: '{short}'")
 
     def __str__(self) -> str:
