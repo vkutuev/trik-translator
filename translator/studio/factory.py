@@ -16,7 +16,7 @@ __all__ = [
 
 class TrikStudioFactory(TranslatorFactory):
 
-    def build_tm(self, path: Path) -> TrikStudioTranslationsManager:
+    def build_rm(self, path: Path) -> TrikStudioTranslationsManager:
         return TrikStudioTranslationsManager(path)
 
     def build_pm(self, path: Path) -> TrikStudioPhrasesManager:

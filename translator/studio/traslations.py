@@ -7,14 +7,14 @@ import subprocess
 from typing import Iterator
 
 from translator.languages import Languages
-from translator.translations import TranslationsManager
+from translator.resources import ResourcesManager
 
 __all__ = [
     "TrikStudioTranslationsManager",
 ]
 
 
-class TrikStudioTranslationsManager(TranslationsManager):
+class TrikStudioTranslationsManager(ResourcesManager):
 
     def __init__(self, studio_path: Path) -> None:
         self.__studio_path = studio_path.absolute()

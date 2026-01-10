@@ -8,11 +8,11 @@ from pathlib import Path
 from translator.languages import Languages
 
 __all__ = [
-    "TranslationsManager",
+    "ResourcesManager",
 ]
 
 
-class TranslationsManager(ABC):
+class ResourcesManager(ABC):
 
     @abstractmethod
     def prepare(self, lang: Languages) -> None:

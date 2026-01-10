@@ -7,8 +7,8 @@ from pathlib import Path
 
 from translator.languages import Languages
 from translator.translator import Translator
-from translator.phrases import Phrase, PhrasesManager, PhraseTranslationStatus
-from translator.translations import TranslationsManager
+from translator.phrases import PhrasesManager
+from translator.resources import ResourcesManager
 
 __all__ = [
     "TranslatorFactory",
@@ -19,7 +19,7 @@ __all__ = [
 class TranslatorFactory(ABC):
 
     @abstractmethod
-    def build_tm(self, path: Path) -> TranslationsManager:
+    def build_rm(self, path: Path) -> ResourcesManager:
         pass
 
     @abstractmethod
@@ -36,7 +36,7 @@ class TranslatorPipeline:
         translator: Translator,
     ) -> None:
         self.__tr_factory = tr_factory
-        self.__tr_manager = tr_factory.build_tm(tr_path)
+        self.__rs_manager = tr_factory.build_rm(tr_path)
         self.__translator = translator
         self.__all_written = False
 
@@ -86,15 +86,15 @@ class TranslatorPipeline:
 
 
     def run(self, tr_lang: Languages, ex_lang: Languages | None = None) -> None:
-        self.__tr_manager.prepare(tr_lang)
+        self.__rs_manager.prepare(tr_lang)
         try:
             if ex_lang is None:
-                tr_files = self.__tr_manager.translations_without_ex()
+                tr_files = self.__rs_manager.translations_without_ex()
                 self.__process_without_ex(tr_lang, tr_files)
             else:
-                tr_ex_files = self.__tr_manager.translations_with_ex(ex_lang)
+                tr_ex_files = self.__rs_manager.translations_with_ex(ex_lang)
                 self.__process_with_ex(tr_lang, ex_lang, tr_ex_files)
         finally:
-            self.__tr_manager.finalize()
+            self.__rs_manager.finalize()
             if self.__all_written:
                 print("->Cannot write some translations! Try to run program again!!!")
