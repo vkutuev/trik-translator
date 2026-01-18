@@ -11,11 +11,11 @@ from openai import OpenAI
 
 from translator.languages import Languages
 from translator.phrases import Phrase
-from translator.studio.prompts import get_prompt_without_example, get_prompt_with_example
 
 __all__ = [
     "Translator",
     "LlmTranslator",
+    "LlmPromptsFactory",
 ]
 
 
@@ -25,9 +25,23 @@ class Translator(ABC):
         pass
 
 
+class LlmPromptsFactory(ABC):
+    @abstractmethod
+    def get_prompt(self, tr_lang: Languages) -> str:
+        pass
+
+    @abstractmethod
+    def get_prompt_ex(self, tr_lang: Languages, ex_lang: Languages) -> str:
+        pass
+
 class LlmTranslator(Translator):
 
-    def __init__(self, temperature=0.15, max_output_tokens=4000) -> None:
+    def __init__(self,
+        prompts_factory: LlmPromptsFactory,
+        temperature=0.15,
+        max_output_tokens=4000
+    ) -> None:
+        self.__prompts_factory = prompts_factory
         load_dotenv()
         model = os.getenv("OPENAI_MODEL")
         if model is None:
@@ -45,9 +59,9 @@ class LlmTranslator(Translator):
 
     def __translate_json(self, phrases_json: str, tr_lang: Languages, ex_lang: Languages | None = None) -> str:
         if ex_lang is None:
-            prompt = get_prompt_without_example(tr_lang)
+            prompt = self.__prompts_factory.get_prompt(tr_lang)
         else:
-            prompt = get_prompt_with_example(tr_lang, ex_lang)
+            prompt = self.__prompts_factory.get_prompt_ex(tr_lang, ex_lang)
         response = self.__client.responses.create(
             model=self.__model,
             temperature=self.__temperature,

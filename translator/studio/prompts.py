@@ -5,11 +5,14 @@ __license__ = "SPDX-License-Identifier: MIT"
 from functools import cache
 
 from translator.languages import Languages
+from translator.translator import LlmPromptsFactory
 
 
-@cache
-def get_prompt_with_example(tr_lang: Languages, ex_lang: Languages) -> str:
-    return f'''
+class TrikStudioPrompts(LlmPromptsFactory):
+
+    @cache
+    def get_prompt_ex(self, tr_lang: Languages, ex_lang: Languages) -> str:
+        return f'''
 You are a translator. Your goal is to translate the labels used in the desktop application into {tr_lang.long}.
 
 # Input format
@@ -68,10 +71,9 @@ The output JSON MUST follow this schema:
 - Use typical phrases for GUI applications.
 '''
 
-
-@cache
-def get_prompt_without_example(tr_lang: Languages) -> str:
-    return f'''
+    @cache
+    def get_prompt(self, tr_lang: Languages) -> str:
+        return f'''
 You are a translator. Your goal is to translate the labels used in the desktop application into {tr_lang.long}.
 
 # Input format

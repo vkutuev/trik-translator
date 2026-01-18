@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 
 from translator.languages import Languages
+from translator.studio.prompts import TrikStudioPrompts
 from translator.translator import LlmTranslator
 from translator.pipeline import TranslatorPipeline
 from translator.studio.factory import TrikStudioFactory
@@ -21,7 +22,7 @@ def main():
     pipeline = TranslatorPipeline(
         TrikStudioFactory(),
         Path(args.path),
-        LlmTranslator(),
+        LlmTranslator(TrikStudioPrompts()),
     )
     pipeline.run(args.lang_tr, args.lang_ex)
 
