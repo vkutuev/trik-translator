@@ -2,10 +2,9 @@ import argparse
 from pathlib import Path
 
 from translator.languages import Languages
-from translator.studio.prompts import TrikStudioPrompts
+from translator.studio import TrikStudioFactory, TrikStudioPrompts
 from translator.translator import LlmTranslator
 from translator.pipeline import TranslatorPipeline
-from translator.studio.factory import TrikStudioFactory
 
 
 def main():
