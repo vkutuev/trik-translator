@@ -39,6 +39,7 @@ Each query is a JSON containing an array of objects with "en" and "{ex_lang.shor
 # Output Format
 
 The response to each request MUST be a raw JSON (with no markdown or special formatting characters) containing an array of objects with the fields "en" and "{tr_lang.short}." The "en" field contains the original label (which must remain unchanged), and the "{tr_lang.short}" field contains the {tr_lang.long} translation of the label.
+Ensure all internal quotes are properly escaped with a backslash (\\").
 
 ## JSON schema
 
@@ -97,6 +98,7 @@ Each query is a JSON containing an array of objects with "en" field containing t
 # Output Format
 
 The response to each request MUST be a raw JSON (with no markdown or special formatting characters) containing an array of objects with the fields "en" and "{tr_lang.short}." The "en" field contains the original label (which must remain unchanged), and the "{tr_lang.short}" field contains the {tr_lang.long} translation of the label.
+Ensure all internal quotes are properly escaped with a backslash (\\").
 
 ## JSON schema
 
