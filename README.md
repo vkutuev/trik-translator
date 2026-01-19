@@ -1,6 +1,6 @@
 # TRIK Translator
 
-This project provides tools for translating TRIK Studio UI files.
+This project provides a tool for translating phrases in the TRIK Studio UI.
 
 ## Installation
 
