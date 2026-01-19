@@ -9,9 +9,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("path", type=str,
                         help="Path to directory with your program, for example, the path to TRIKStudio.")
-    parser.add_argument("lang_tr", type=str, choices=list(Languages),
+    parser.add_argument("lang_tr", type=Languages, choices=list(Languages),
                         help="The language into which the phrases in your program need to be translated.")
-    parser.add_argument("--lang_ex", type=str, choices=list(Languages), required=False,
+    parser.add_argument("--lang_ex", type=Languages, choices=list(Languages), required=False,
                         help="""The language that translations should be based on as an example.
                         This may be useful when using an LLM-based translator.""")
     args = parser.parse_args()
