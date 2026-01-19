@@ -128,7 +128,7 @@ class TranslatorPipeline:
             cannot_write = list(tr_pm.write_phrases(phrases_tr))
             if len(cannot_write) > 0:
                 self.__all_written = False
-                print("->Cannot write translations for phrases:")
+                print("->Cannot write translations for phrases:\n---->")
                 print("\n---->".join({p.original for p in cannot_write}))
 
     def run(self, tr_lang: Languages, ex_lang: Languages | None = None) -> None:
@@ -155,5 +155,5 @@ class TranslatorPipeline:
                 self.__process_with_ex(tr_lang, ex_lang, tr_ex_files)
         finally:
             self.__rs_manager.finalize()
-            if self.__all_written:
+            if not self.__all_written:
                 print("->Cannot write some translations! Try to run program again!!!")
