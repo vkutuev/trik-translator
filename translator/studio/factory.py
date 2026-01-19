@@ -5,7 +5,7 @@ __license__ = "SPDX-License-Identifier: MIT"
 
 from pathlib import Path
 
-from translator.pipeline import TranslatorFactory
+from translator.pipeline import TranslationsManagerFactory
 from translator.studio.phrases import TrikStudioPhrasesManager
 from translator.studio.traslations import TrikStudioTranslationsManager
 
@@ -14,7 +14,7 @@ __all__ = [
 ]
 
 
-class TrikStudioFactory(TranslatorFactory):
+class TrikStudioFactory(TranslationsManagerFactory):
 
     def build_rm(self, path: Path) -> TrikStudioTranslationsManager:
         return TrikStudioTranslationsManager(path)

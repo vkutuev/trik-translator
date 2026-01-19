@@ -11,12 +11,12 @@ from translator.phrases import PhrasesManager
 from translator.resources import ResourcesManager
 
 __all__ = [
-    "TranslatorFactory",
+    "TranslationsManagerFactory",
     "TranslatorPipeline",
 ]
 
 
-class TranslatorFactory(ABC):
+class TranslationsManagerFactory(ABC):
     """
     Abstract base class for creating managers for resources and phrases.
 
@@ -54,7 +54,7 @@ class TranslatorPipeline:
 
     def __init__(
         self,
-        tr_factory: TranslatorFactory,
+        tr_factory: TranslationsManagerFactory,
         tr_path: Path,
         translator: Translator,
     ) -> None:
