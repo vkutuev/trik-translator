@@ -2,6 +2,7 @@ __author__ = "Vladimir Kutuev"
 __copyright__ = "Copyright (c) 2025 Vladimir Kutuev"
 __license__ = "SPDX-License-Identifier: MIT"
 
+import sys
 from pathlib import Path
 import subprocess
 from typing import Iterator
@@ -26,9 +27,12 @@ class TrikStudioTranslationsManager(ResourcesManager):
         alupdate_dir = Path.cwd() / "trik-studio-lupdate"
         alupdate_dir.mkdir(exist_ok=True)
         log_file = alupdate_dir / "log.txt"
+        qmake = "qmake"
+        if sys.platform.lower().startswith("win"):
+            qmake = qmake + ".exe"
         with open(log_file, "w") as outfile:
             subprocess.run(
-                ["qmake", "-r", "CONFIG+=autolupdate", self.__studio_path],
+                [qmake, "-r", "CONFIG+=autolupdate", self.__studio_path],
                 cwd=alupdate_dir,
                 stdout=outfile,
                 stderr=subprocess.STDOUT,
