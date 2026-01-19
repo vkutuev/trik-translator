@@ -50,7 +50,7 @@ class PhraseTranslationStatus(Enum):
 
 class PhrasesManager(ABC):
     """
-    Abstract base class for managing phrases.
+    Abstract base class for managing phrases from a one source.
 
     This class defines the interface for reading and writing phrases,
     which concrete implementations will provide.
