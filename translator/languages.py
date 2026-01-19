@@ -38,5 +38,6 @@ class Languages(Enum):
 
     @classmethod
     def from_locale_code(cls, locale_code: str) -> "Languages":
+        """Create a Languages enum member from a locale code (e.g., 'en_US', 'fr-CA')."""
         language_code = locale_code.split('_')[0].split('-')[0]
         return cls(language_code)

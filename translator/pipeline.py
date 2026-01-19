@@ -17,17 +17,40 @@ __all__ = [
 
 
 class TranslatorFactory(ABC):
+    """
+    Abstract base class for creating managers for resources and phrases.
+
+    This factory is responsible for providing concrete implementations of
+    :class:`ResourcesManager` and :class:`PhrasesManager` based on the
+    specific requirements of the translation pipeline.
+    """
 
     @abstractmethod
     def build_rm(self, path: Path) -> ResourcesManager:
+        """
+        Builds and returns a :class:`ResourcesManager` instance.
+
+        :param path: The path to the resources.
+        :return: An instance of :class:`ResourcesManager`.
+        """
         pass
 
     @abstractmethod
     def build_pm(self, path: Path) -> PhrasesManager:
+        """
+        Builds and returns a :class:`PhrasesManager` instance.
+
+        :param path: The path to the phrases.
+        :return: An instance of :class:`PhrasesManager`.
+        """
         pass
 
 
 class TranslatorPipeline:
+    """
+    This class represents the main pipeline for translating phrases.
+    It orchestrates the process of reading, translating, and writing phrases using a TranslatorFactory and a Translator.
+    """
 
     def __init__(
         self,
@@ -41,6 +64,17 @@ class TranslatorPipeline:
         self.__all_written = False
 
     def __process_without_ex(self, tr_lang: Languages, tr_files: list[Path]) -> None:
+        """
+        Processes translation files without example translations.
+
+        This method iterates through a list of translation files, reads phrases from each,
+        translates them into the target language, and then writes the translated phrases back.
+        It updates an internal flag if any translations cannot be written.
+
+        :param tr_lang: The target language for translation.
+        :param tr_files: A list of paths to the translation files to be processed.
+        :return: None
+        """
         self.__all_written = True
         for file in tr_files:
             print(f"Generate translations for {file}")
@@ -58,6 +92,19 @@ class TranslatorPipeline:
                 print("\n---->".join({p.original for p in cannot_write}))
 
     def __process_with_ex(self, tr_lang: Languages, ex_lang: Languages, tr_ex_files: list[tuple[Path, Path]]) -> None:
+        """
+        This method iterates through pairs of translation files (target and example),
+        reads phrases from both, merges the existing translations into the target phrases,
+        translates the merged phrases into the target language, and then writes them back.
+        It updates an internal flag if any translations cannot be written.
+
+        :param tr_lang: The target language for new translations.
+        :param ex_lang: The existing language whose translations will be merged.
+        :param tr_ex_files: A list of tuples, where each tuple contains
+                            (path to target translation file, path to existing translation file).
+        :return: None
+        """
+
         self.__all_written = True
         for tr_file, ex_file in tr_ex_files:
             print(f"Generate translations for {tr_file}")
@@ -84,8 +131,20 @@ class TranslatorPipeline:
                 print("->Cannot write translations for phrases:")
                 print("\n---->".join({p.original for p in cannot_write}))
 
-
     def run(self, tr_lang: Languages, ex_lang: Languages | None = None) -> None:
+        """
+        Executes the translation pipeline.
+
+        This method prepares the resources, extract phrases to translate
+        (merges them with example translations if provided),
+        translate them using given translator, and write the translated phrases back,
+        and finally finalizes the resources.
+        It also prints a warning if some translations could not be written.
+
+        :param tr_lang: The target language for translation.
+        :param ex_lang: An optional existing language to merge translations from. Defaults to None.
+        """
+
         self.__rs_manager.prepare(tr_lang)
         try:
             if ex_lang is None:

@@ -49,11 +49,28 @@ class PhraseTranslationStatus(Enum):
 
 
 class PhrasesManager(ABC):
+    """
+    Abstract base class for managing phrases.
+
+    This class defines the interface for reading and writing phrases,
+    which concrete implementations will provide.
+    """
 
     @abstractmethod
     def read_phrases(self) -> Iterable[Phrase]:
+        """
+        Reads all required phrases from a source.
+
+        :return: Read phrases.
+        """
         pass
 
     @abstractmethod
     def write_phrases(self, phrases: Iterable[Phrase]) -> Iterable[Phrase]:
+        """
+        Writes phrases to a destination.
+
+        :param phrases: Phrases to be written.
+        :return: Phrases that cannot be written for further processing.
+        """
         pass
