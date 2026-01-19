@@ -27,6 +27,9 @@ class Phrase:
     original: str
     translations: dict[Languages, str]
 
+    def __hash__(self) -> int:
+        return hash(self.original)
+
     def to_dict(self, translation_langs: list[Languages] | None = None) -> dict[str, str]:
         """
         Converts the Phrase object into a dictionary format suitable for serialization,
