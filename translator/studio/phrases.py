@@ -121,7 +121,7 @@ class TrikStudioPhrasesManager(PhrasesManager):
                     raise SyntaxError("<message> tag doesn't contain <translation> tag")
                 trtype, _ = TrikStudioPhrasesManager.__parse_translation(translation)
                 if trtype == self.__ptype and translations.get(original, ""):
-                    if not trtype.FINISHED:
+                    if not trtype is PhraseTranslationStatus.FINISHED:
                         translation.attrib.pop("type")
                     translation.text = translations[original]
                     written.add(original)
