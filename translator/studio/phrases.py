@@ -12,8 +12,19 @@ from translator.phrases import Phrase, PhraseTranslationStatus, PhrasesManager
 
 
 class TrikStudioPhrasesManager(PhrasesManager):
+    """
+    Manages phrases for TRIK Studio, specifically handling Qt TS files (XML files
+    used by Qt Linguist for translations).
+    """
 
     def __init__(self, file: Path, ptype: PhraseTranslationStatus = PhraseTranslationStatus.UNFINISHED) -> None:
+        """
+        Initializes a TrikStudioPhrasesManager instance.
+
+        :param file: The path to the Qt TS file.
+        :param ptype: The type of phrases to manage (e.g., UNFINISHED, FINISHED). Defaults to UNFINISHED.
+        :raises etree.ParseError: If the provided file cannot be parsed as an XML.
+        """
         self.__file = file
         try:
             self.__tree: etree.ElementTree[etree.Element[str]] = etree.parse(file)
@@ -24,6 +35,14 @@ class TrikStudioPhrasesManager(PhrasesManager):
 
     @staticmethod
     def __detect_lang(ts: etree.Element) -> Languages:
+        """
+        Detects the language of the Qt TS file from its root element.
+
+        :param ts: The root element of the Qt TS file.
+        :raises SyntaxError: If the root tag is not <TS> or if the <TS> tag
+                             lacks a 'language' attribute.
+        :return: The detected language.
+        """
         if ts.tag != "TS":
             raise SyntaxError("Qt TS root tag must be <TS>")
         locale_code = ts.attrib.get("language", None)
@@ -33,11 +52,27 @@ class TrikStudioPhrasesManager(PhrasesManager):
 
     @staticmethod
     def __parse_translation(translation: etree.Element) -> tuple[PhraseTranslationStatus, str]:
+        """
+        Parses a <translation> element to extract its type and text.
+
+        :param translation: The <translation> XML element.
+        :return: A tuple containing the translation status and the translated text.
+        """
         trtype = PhraseTranslationStatus(translation.attrib.get("type", ""))
         translated = translation.text if translation.text else ""
         return trtype, translated
 
     def read_phrases(self) -> list[Phrase]:
+        """
+        Reads phrases from the Qt TS file.
+
+        Only phrases matching the `ptype` specified during initialization are
+        included in the result.
+
+        :raises SyntaxError: If a <message> tag is malformed (e.g., missing
+                             <source> or <translation> tags, or empty source text).
+        :return: A list of Phrases found in the file.
+        """
         root = self.__tree.getroot()
         file_messages: list[Phrase] = []
         for context in root.findall("context"):
@@ -57,6 +92,18 @@ class TrikStudioPhrasesManager(PhrasesManager):
         return file_messages
 
     def write_phrases(self, phrases: Iterable[Phrase]) -> Iterable[Phrase]:
+        """
+        Writes provided phrases back to the Qt TS file.
+
+        This method updates the translations in the XML tree for phrases
+        that match the `ptype` and have a corresponding translation in the
+        provided `phrases`. If a phrase's translation is updated
+        and its original type was not 'FINISHED', the 'type' attribute is
+        removed from the <translation> tag.
+
+        :param phrases: Phrases to write.
+        :return: Phrases that were *not* written to the file.
+        """
         written: set[str] = set()
         translations: dict[str, str] = {p.original: p.translations.get(self.__lang, "") for p in phrases}
         phrases: dict[str, Phrase] = {p.original: p for p in phrases}
