@@ -64,12 +64,12 @@ class Phrase:
         original = translations.get("en", None)
         if not original:
             raise KeyError("Translations must contain original ('en') phrase")
-        translations = {}
+        phrase_translations = {}
         for lang, phrase in translations.items():
             if lang == "en":
                 continue
-            translations[Languages(lang)] = phrase
-        return cls(original, translations)
+            phrase_translations[Languages(lang)] = phrase
+        return cls(original, phrase_translations)
 
 
 class PhraseTranslationStatus(Enum):
