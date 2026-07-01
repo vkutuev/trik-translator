@@ -14,12 +14,15 @@ def main():
     parser.add_argument("--lang_ex", type=Languages, choices=list(Languages), required=False,
                         help="""The language that translations should be based on as an example.
                         This may be useful when using an LLM-based translator.""")
+    parser.add_argument("--max_tokens", type=int, default=4000,
+                        help="Maximum number of output tokens for LLM.")
+
     args = parser.parse_args()
 
     pipeline = TranslatorPipeline(
         TrikStudioFactory(),
         Path(args.path),
-        LlmTranslator(TrikStudioPrompts()),
+        LlmTranslator(TrikStudioPrompts(), max_output_tokens=args.max_tokens),
     )
     pipeline.run(args.lang_tr, args.lang_ex)
 
